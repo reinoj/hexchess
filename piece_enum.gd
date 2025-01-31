@@ -8,3 +8,5 @@ const PieceAtlas = {
 	PieceType.QUEEN: 328,
 	PieceType.KING: 410
 }
+
+enum PieceTeam {BLACK, WHITE}
