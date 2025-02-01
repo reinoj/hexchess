@@ -8,38 +8,35 @@ const PieceTeam = PieceEnum.PieceTeam
 
 const HexFunctions = preload("res://hex_functions.gd")
 
+# axial
+# 0: black, 1: white
+const pawn_starts: Array = [
+	[Vector2i(1,2), Vector2i(2,2), Vector2i(3,2), Vector2i(4,2), Vector2i(5,2), Vector2i(6,1), Vector2i(7,0), Vector2i(8,-1), Vector2i(9,-2)],
+	[Vector2i(1,8), Vector2i(2,7), Vector2i(3,6), Vector2i(4,5), Vector2i(5,4), Vector2i(6,4), Vector2i(7,4), Vector2i(8,4), Vector2i(9,4)]
+]
+
+# axial
 # using these dicts as sets, value will always be set to null
-var black_locations: Dictionary = {}
-var white_locations: Dictionary = {}
+var locations: Array = [{}, {}]
 
 func _ready():
 	load_pieces()
+	SignalBus.connect("move_piece", _move_piece)
 
 func load_pieces():
 	# formation based on Glinski
-	# axial coordinates
-	var hex_b = Vector2i(1, 2)
-	var hex_w = Vector2i(1, 8)
-	var cur_piece_type = PieceType.PAWN
+	# axial coordinates for the Vectors in this functions
 	
 	# Pawns
-	for i in range(9):
+	var cur_piece_type = PieceType.PAWN
+	for hex_b in pawn_starts[PieceTeam.BLACK]:
 		spawn_piece(hex_b, cur_piece_type, PieceTeam.BLACK)
+	for hex_w in pawn_starts[PieceTeam.WHITE]:
 		spawn_piece(hex_w, cur_piece_type, PieceTeam.WHITE)
-		if i < 4:
-			hex_b.x += 1
-			# hex_b.z -= 1
-			hex_w.x += 1
-			hex_w.y -= 1
-		else:
-			hex_b.x += 1
-			hex_b.y -= 1
-			hex_w.x += 1
-			# hex_w.z -= 1
 	
 	# Rooks
-	hex_b = Vector2i(2, 1)
-	hex_w = Vector2i(2, 8)
+	var hex_b = Vector2i(2, 1)
+	var hex_w = Vector2i(2, 8)
 	cur_piece_type = PieceType.ROOK
 	for i in range(2):
 		spawn_piece(hex_b, cur_piece_type, PieceTeam.BLACK)
@@ -92,6 +89,10 @@ func spawn_piece(hex: Vector2i, piece_type: PieceType, piece_team: PieceTeam):
 	piece.initialize_piece(piece_type, piece_team)
 	match piece_team:
 		PieceTeam.BLACK:
-			black_locations[hex] = null
+			locations[PieceTeam.BLACK][hex] = null
 		PieceTeam.WHITE:
-			white_locations[hex] = null
+			locations[PieceTeam.WHITE][hex] = null
+
+func _move_piece(old_hex: Vector2i, new_hex: Vector2i, piece_team: PieceTeam):
+	locations[piece_team].erase(old_hex)
+	locations[piece_team][new_hex] = null
