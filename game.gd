@@ -2,22 +2,8 @@ extends Node2D
 
 var piece_scene: PackedScene = preload("res://piece.tscn")
 
-const PieceEnum = preload("res://piece_enum.gd")
 const PieceType = PieceEnum.PieceType
 const PieceTeam = PieceEnum.PieceTeam
-
-const HexFunctions = preload("res://hex_functions.gd")
-
-# axial
-# 0: black, 1: white
-const pawn_starts: Array = [
-	[Vector2i(1,2), Vector2i(2,2), Vector2i(3,2), Vector2i(4,2), Vector2i(5,2), Vector2i(6,1), Vector2i(7,0), Vector2i(8,-1), Vector2i(9,-2)],
-	[Vector2i(1,8), Vector2i(2,7), Vector2i(3,6), Vector2i(4,5), Vector2i(5,4), Vector2i(6,4), Vector2i(7,4), Vector2i(8,4), Vector2i(9,4)]
-]
-
-# axial
-# using these dicts as sets, value will always be set to null
-var locations: Array = [{}, {}]
 
 func _ready():
 	load_pieces()
@@ -29,9 +15,9 @@ func load_pieces():
 	
 	# Pawns
 	var cur_piece_type = PieceType.PAWN
-	for hex_b in pawn_starts[PieceTeam.BLACK]:
+	for hex_b in Globals.pawn_starts[PieceTeam.BLACK]:
 		spawn_piece(hex_b, cur_piece_type, PieceTeam.BLACK)
-	for hex_w in pawn_starts[PieceTeam.WHITE]:
+	for hex_w in Globals.pawn_starts[PieceTeam.WHITE]:
 		spawn_piece(hex_w, cur_piece_type, PieceTeam.WHITE)
 	
 	# Rooks
@@ -89,10 +75,10 @@ func spawn_piece(hex: Vector2i, piece_type: PieceType, piece_team: PieceTeam):
 	piece.initialize_piece(piece_type, piece_team)
 	match piece_team:
 		PieceTeam.BLACK:
-			locations[PieceTeam.BLACK][hex] = null
+			Globals.locations[PieceTeam.BLACK][hex] = null
 		PieceTeam.WHITE:
-			locations[PieceTeam.WHITE][hex] = null
+			Globals.locations[PieceTeam.WHITE][hex] = null
 
 func _move_piece(old_hex: Vector2i, new_hex: Vector2i, piece_team: PieceTeam):
-	locations[piece_team].erase(old_hex)
-	locations[piece_team][new_hex] = null
+	Globals.locations[piece_team].erase(old_hex)
+	Globals.locations[piece_team][new_hex] = null

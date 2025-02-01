@@ -1,10 +1,7 @@
 extends Node2D
 
-const PieceEnum = preload("res://piece_enum.gd")
 const PieceType = PieceEnum.PieceType
 const PieceTeam = PieceEnum.PieceTeam
-
-const HexFunctions = preload("res://hex_functions.gd")
 
 const SIZE: int = 64
 const PIECE_SIZE: int = 82
@@ -24,12 +21,9 @@ var move_locations: PackedVector2Array
 @onready var sprite: Sprite2D = $"Sprite2D"
 @onready var tile_map: TileMapLayer = $"../Board"
 @onready var DROP_OFFSET = tile_map.transform.get_origin()
-# TODO move pawn starts here and in game.gd to a globals file
-var pawn_starts: Array
 
 func _ready():
 	dragging = false
-	pawn_starts = game_node.get("pawn_starts")
 
 func _process(_delta):
 	if dragging:
@@ -68,9 +62,9 @@ func _on_area_2d_input_event(_viewport, event: InputEvent, _shape_idx):
 func get_piece_move_options() -> PackedVector2Array:
 	var pa: PackedVector2Array
 	
-	var locations : Array = game_node.get("locations")
-	var black_locations: Array = locations[PieceTeam.BLACK].keys()
-	var white_locations: Array = locations[PieceTeam.WHITE].keys()
+	#var locations : Array = game_node.get("locations")
+	var black_locations: Array = Globals.locations[PieceTeam.BLACK].keys()
+	var white_locations: Array = Globals.locations[PieceTeam.WHITE].keys()
 	# axial
 	var test_hex: Vector2i
 	var axial_location = HexFunctions.oddq_to_axial(location)
@@ -81,7 +75,7 @@ func get_piece_move_options() -> PackedVector2Array:
 			if test_hex not in black_locations and test_hex not in white_locations:
 				pa.append(HexFunctions.axial_to_oddq(test_hex))
 			# move 2 forward if in a start location
-			if axial_location in pawn_starts[piece_team]:
+			if axial_location in Globals.pawn_starts[piece_team]:
 				test_hex = pawn_next_hex(test_hex)
 				if test_hex not in black_locations and test_hex not in white_locations:
 					pa.append(HexFunctions.axial_to_oddq(test_hex))

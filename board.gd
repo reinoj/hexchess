@@ -1,7 +1,5 @@
 extends TileMapLayer
 
-const HexFunctions = preload("res://hex_functions.gd")
-
 var TILE_MAP_ID = 0
 
 func _ready():

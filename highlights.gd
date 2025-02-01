@@ -1,7 +1,5 @@
 extends TileMapLayer
 
-const HexFunctions = preload("res://hex_functions.gd")
-
 func _ready():
 	SignalBus.connect("highlightTiles", _highlightTiles)
 	SignalBus.connect("clearHighlights", _clearHighlights)
