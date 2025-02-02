@@ -12,3 +12,8 @@ const PieceAtlas = {
 }
 
 enum PieceTeam {BLACK, WHITE}
+
+func other_team(piece_team: PieceTeam):
+	if piece_team == PieceTeam.BLACK:
+		return PieceTeam.WHITE
+	return PieceTeam.BLACK

@@ -15,7 +15,8 @@ var dragging: bool
 var location: Vector2i
 var piece_type: PieceType
 var piece_team: PieceTeam
-var move_locations: PackedVector2Array
+# oddq
+var move_locations: Array[Vector2i]
 
 @onready var game_node: Node2D = $"../../Node"
 @onready var sprite: Sprite2D = $"Sprite2D"
@@ -37,7 +38,7 @@ func initialize_piece(_piece_type: PieceType, _piece_team: PieceTeam):
 
 func set_piece_position(hex: Vector2i):
 	global_position = tile_map.map_to_local(hex) + DROP_OFFSET
-	location = tile_map.local_to_map(global_position)
+	location = hex
 
 func _on_area_2d_input_event(_viewport, event: InputEvent, _shape_idx):
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
@@ -45,50 +46,60 @@ func _on_area_2d_input_event(_viewport, event: InputEvent, _shape_idx):
 			dragging = true
 			z_index = 1
 			move_locations.append(location)
-			move_locations.append_array(get_piece_move_options())
+			get_piece_move_options()
 			SignalBus.highlightTiles.emit(move_locations)
 		elif event.is_released():
 			dragging = false
 			z_index = 0
+			var new_pos: Vector2i = tile_map.local_to_map(get_global_mouse_position() - DROP_OFFSET)
+			if move_locations.has(new_pos):
+				if location != new_pos:
+					SignalBus.move_piece.emit(HexFunctions.oddq_to_axial(location), HexFunctions.oddq_to_axial(new_pos), piece_team)
+				set_piece_position(tile_map.local_to_map(get_global_mouse_position() - DROP_OFFSET))
+			else:
+				set_piece_position(location)
 			move_locations.clear()
-			var new_pos = tile_map.local_to_map(get_global_mouse_position() - DROP_OFFSET)
-			# check if `new_pos` is in `move_locations`, if not -> set piece at `location`, if so -> do the check and set below
-			# do check to make sure new_pos is on the board
-			if location != new_pos:
-				SignalBus.move_piece.emit(HexFunctions.oddq_to_axial(location), HexFunctions.oddq_to_axial(new_pos), piece_team)
-			set_piece_position(tile_map.local_to_map(get_global_mouse_position() - DROP_OFFSET))
 			SignalBus.clearHighlights.emit()
 
-func get_piece_move_options() -> PackedVector2Array:
-	var pa: PackedVector2Array
-	
-	#var locations : Array = game_node.get("locations")
-	var black_locations: Array = Globals.locations[PieceTeam.BLACK].keys()
-	var white_locations: Array = Globals.locations[PieceTeam.WHITE].keys()
+const LONGEST_ROOK_MOVE: int = 10
+const LONGEST_BISHOP_MOVE: int = 5
+func get_piece_move_options():
 	# axial
-	var test_hex: Vector2i
 	var axial_location = HexFunctions.oddq_to_axial(location)
 	match piece_type:
 		PieceType.PAWN:
-			# move 1 forward
-			test_hex = pawn_next_hex(axial_location)
-			if test_hex not in black_locations and test_hex not in white_locations:
-				pa.append(HexFunctions.axial_to_oddq(test_hex))
-			# move 2 forward if in a start location
-			if axial_location in Globals.pawn_starts[piece_team]:
-				test_hex = pawn_next_hex(test_hex)
-				if test_hex not in black_locations and test_hex not in white_locations:
-					pa.append(HexFunctions.axial_to_oddq(test_hex))
-			# side captures
-			if piece_team == PieceTeam.WHITE:
-				test_hex = Vector2i(axial_location.x-1, axial_location.y)
-				pa.append_array(pawn_side_captures(test_hex, black_locations))
-			else:
-				test_hex = Vector2i(axial_location.x-1, axial_location.y+1)
-				pa.append_array(pawn_side_captures(test_hex, white_locations))
+			get_pawn_moves(axial_location)
 		PieceType.ROOK:
-			pass
-	return pa
+			get_rook_moves(axial_location, LONGEST_ROOK_MOVE)
+		PieceType.KNIGHT:
+			get_knight_moves(axial_location)
+		PieceType.BISHOP:
+			get_bishop_moves(axial_location, LONGEST_BISHOP_MOVE)
+		PieceType.QUEEN:
+			get_rook_moves(axial_location, LONGEST_ROOK_MOVE)
+			get_bishop_moves(axial_location, LONGEST_BISHOP_MOVE)
+		PieceType.KING:
+			get_rook_moves(axial_location, 1)
+			get_bishop_moves(axial_location, 1)
+
+func get_pawn_moves(hex: Vector2i):
+	# move 1 forward
+	var move_one: bool = false
+	var test_hex: Vector2i = pawn_next_hex(hex)
+	if test_move_hex(test_hex):
+		move_locations.append(HexFunctions.axial_to_oddq(test_hex))
+		move_one = true
+	# move 2 forward if in a start location
+	if move_one and hex in Globals.pawn_starts[piece_team]:
+		test_hex = pawn_next_hex(test_hex)
+		if test_move_hex(test_hex):
+			move_locations.append(HexFunctions.axial_to_oddq(test_hex))
+	# side captures
+	if piece_team == PieceTeam.WHITE:
+		test_hex = Vector2i(hex.x-1, hex.y)
+	else:
+		test_hex = Vector2i(hex.x-1, hex.y+1)
+	pawn_side_captures(test_hex)
 
 # axial -> axial
 func pawn_next_hex(hex: Vector2i) -> Vector2i:
@@ -97,13 +108,77 @@ func pawn_next_hex(hex: Vector2i) -> Vector2i:
 	else:
 		return Vector2i(hex.x, hex.y + 1)
 
-# axial -> array<oddq>
-func pawn_side_captures(test_hex: Vector2i, opposite_locations: Array) -> PackedVector2Array:
-	var pa: PackedVector2Array
-	if test_hex in opposite_locations:
-		pa.append(HexFunctions.axial_to_oddq(test_hex))
+# axial
+func pawn_side_captures(test_hex: Vector2i):
+	if Globals.locations[PieceEnum.other_team(piece_team)].has(test_hex):
+		move_locations.append(HexFunctions.axial_to_oddq(test_hex))
 	test_hex.x += 2
 	test_hex.y -= 1
-	if test_hex in opposite_locations:
-		pa.append(HexFunctions.axial_to_oddq(test_hex))
-	return pa
+	if Globals.locations[PieceEnum.other_team(piece_team)].has(test_hex):
+		move_locations.append(HexFunctions.axial_to_oddq(test_hex))
+
+# axial
+func get_rook_moves(hex: Vector2i, longest_move: int):
+	# q-axis
+	var test_hex: Vector2i = Vector2i(hex.x, hex.y+1)
+	for i in range(longest_move):
+		if test_move_hex(test_hex):
+			move_locations.append(HexFunctions.axial_to_oddq(test_hex))
+			test_hex.y += 1
+		else:
+			break
+	test_hex = Vector2i(hex.x, hex.y-1)
+	for i in range(longest_move):
+		if test_move_hex(test_hex):
+			move_locations.append(HexFunctions.axial_to_oddq(test_hex))
+			test_hex.y -= 1
+		else:
+			break
+	# r-axis
+	test_hex = Vector2i(hex.x+1, hex.y)
+	for i in range(longest_move):
+		if test_move_hex(test_hex):
+			move_locations.append(HexFunctions.axial_to_oddq(test_hex))
+			test_hex.x += 1
+		else:
+			break
+	test_hex = Vector2i(hex.x-1, hex.y)
+	for i in range(longest_move):
+		if test_move_hex(test_hex):
+			move_locations.append(HexFunctions.axial_to_oddq(test_hex))
+			test_hex.x -= 1
+		else:
+			break
+	# s-axis
+	test_hex = Vector2i(hex.x+1, hex.y-1)
+	for i in range(longest_move):
+		if test_move_hex(test_hex):
+			move_locations.append(HexFunctions.axial_to_oddq(test_hex))
+			test_hex.x += 1
+			test_hex.y -= 1
+		else:
+			break
+	# negative s
+	test_hex = Vector2i(hex.x-1, hex.y+1)
+	for i in range(longest_move):
+		if test_move_hex(test_hex):
+			move_locations.append(HexFunctions.axial_to_oddq(test_hex))
+			test_hex.x -= 1
+			test_hex.y += 1
+		else:
+			break
+
+# TODO
+func get_knight_moves(hex: Vector2i):
+	pass
+
+# TODO
+func get_bishop_moves(hex: Vector2i, longest_move: int):
+	pass
+
+# true -> can move here
+# axial
+func test_move_hex(hex: Vector2i) -> bool:
+	return !Globals.locations[PieceTeam.BLACK].has(hex) and \
+		!Globals.locations[PieceTeam.WHITE].has(hex) and \
+		tile_map.get_cell_tile_data(HexFunctions.axial_to_oddq(hex)) != null

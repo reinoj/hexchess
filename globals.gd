@@ -2,7 +2,7 @@ extends Node
 
 # axial
 # using these dicts as sets, value will always be set to null
-var locations: Array = [{}, {}]
+var locations: Array[Dictionary] = [{}, {}]
 
 # axial
 # 0: black, 1: white
