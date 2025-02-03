@@ -5,8 +5,9 @@ func _ready():
 	SignalBus.connect("clearHighlights", _clearHighlights)
 
 func _highlightTiles(tiles: PackedVector2Array):
-	for tile in tiles:
-		set_cell(tile, 0, Vector2i(0,0))
+	set_cell(tiles[0], 0, Vector2i(0,0))
+	for tile in tiles.slice(1, tiles.size()):
+		set_cell(tile, 1, Vector2i(0,0))
 
 func _clearHighlights():
 	clear()
