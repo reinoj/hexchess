@@ -1,4 +1,5 @@
 extends Node2D
+class_name Piece
 
 const PieceType = PieceEnum.PieceType
 const PieceTeam = PieceEnum.PieceTeam

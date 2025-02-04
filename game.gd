@@ -68,6 +68,7 @@ func load_pieces():
 	spawn_piece(hex_b, cur_piece_type, PieceTeam.BLACK)
 	spawn_piece(hex_w, cur_piece_type, PieceTeam.WHITE)
 
+# axial
 func spawn_piece(hex: Vector2i, piece_type: PieceType, piece_team: PieceTeam):
 	var piece: Node2D = piece_scene.instantiate()
 	add_child(piece)
@@ -79,6 +80,19 @@ func spawn_piece(hex: Vector2i, piece_type: PieceType, piece_team: PieceTeam):
 		PieceTeam.WHITE:
 			Globals.locations[PieceTeam.WHITE][hex] = null
 
+# axial
 func _move_piece(old_hex: Vector2i, new_hex: Vector2i, piece_team: PieceTeam):
+	if Globals.locations[PieceEnum.other_team(piece_team)].has(new_hex):
+		capture_piece(new_hex, PieceEnum.other_team(piece_team))
 	Globals.locations[piece_team].erase(old_hex)
 	Globals.locations[piece_team][new_hex] = null
+
+# axial
+func capture_piece(hex: Vector2i, piece_team: PieceTeam):
+	var oddq_hex: Vector2i = HexFunctions.axial_to_oddq(hex)
+	for child in get_children():
+		if child is Piece:
+			if oddq_hex == child.location:
+				child.queue_free()
+				Globals.locations[piece_team].erase(hex)
+				break
