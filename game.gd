@@ -93,6 +93,14 @@ func capture_piece(hex: Vector2i, piece_team: PieceTeam):
 	for child in get_children():
 		if child is Piece:
 			if oddq_hex == child.location:
+				if child.piece_type == PieceType.KING:
+					# pop up _ wins screen
+					print('%s Wins' % Globals.turn)
 				child.queue_free()
 				Globals.locations[piece_team].erase(hex)
 				break
+
+# TODO
+# add buttons to game screen for each side to forfeit
+# add popup after one team wins, "___" Wins! and new game button
+# add boolean game state variable to globals so that pieces can't be moved after game is done

@@ -8,9 +8,7 @@ const SIZE: int = 64
 const PIECE_SIZE: int = 82
 const TEAM_COLORS = {
 	PieceTeam.BLACK: Color(0.40, 0.40, 0.40),
-	#PieceTeam.BLACK: Color(0.75, 0.10, 0.25),
 	PieceTeam.WHITE: Color(0.90, 0.90, 0.90)
-	#PieceTeam.WHITE: Color(0.20, 0.25, 0.65)
 }
 
 var dragging: bool
@@ -63,9 +61,10 @@ func _on_area_2d_input_event(_viewport, event: InputEvent, _shape_idx):
 				if move_locations.has(new_pos):
 					if location != new_pos:
 						SignalBus.move_piece.emit(HexFunctions.oddq_to_axial(location), HexFunctions.oddq_to_axial(new_pos), piece_team)
-						Globals.turn = PieceEnum.other_team(piece_team)
 						if piece_type == PieceType.PAWN:
 							pawn_upgrade_check(new_pos)
+						#is_king_in_check()
+						Globals.turn = PieceEnum.other_team(piece_team)
 					set_piece_position(tile_map.local_to_map(get_global_mouse_position() - DROP_OFFSET))
 				else:
 					set_piece_position(location)
@@ -346,3 +345,15 @@ func test_move_hex(hex: Vector2i) -> Array[bool]:
 	return [!Globals.locations[piece_team].has(hex) and \
 		tile_map.get_cell_tile_data(HexFunctions.axial_to_oddq(hex)) != null,
 		Globals.locations[PieceEnum.other_team(piece_team)].has(hex)]
+
+# TODO
+# iterate over current team's pieces and see if any of them can capture the enemy king
+# if so -> check 
+# then if the king can:
+# 	- can move to a non-attacked hex
+# 		- recheck current team pieces in case this involves capturing a piece
+# 	- a friendly piece can get in the way
+# 		- check all possible friendly moves and if one blocks it's not checkmate
+# 	- else checkmate
+#func is_king_in_check():
+	#pass
