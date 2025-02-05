@@ -7,8 +7,10 @@ const PieceTeam = PieceEnum.PieceTeam
 const SIZE: int = 64
 const PIECE_SIZE: int = 82
 const TEAM_COLORS = {
-	PieceTeam.BLACK: Color(0.75, 0.10, 0.25),
-	PieceTeam.WHITE: Color(0.20, 0.25, 0.65)
+	PieceTeam.BLACK: Color(0.40, 0.40, 0.40),
+	#PieceTeam.BLACK: Color(0.75, 0.10, 0.25),
+	PieceTeam.WHITE: Color(0.90, 0.90, 0.90)
+	#PieceTeam.WHITE: Color(0.20, 0.25, 0.65)
 }
 
 var dragging: bool
@@ -32,10 +34,13 @@ func _process(_delta):
 		global_position = get_global_mouse_position()
 
 func initialize_piece(_piece_type: PieceType, _piece_team: PieceTeam):
-	piece_type = _piece_type
 	piece_team = _piece_team
-	sprite.region_rect = Rect2(PieceEnum.PieceAtlas[piece_type], 0, PIECE_SIZE, PIECE_SIZE)
+	set_piece_type(_piece_type)
 	sprite.modulate = TEAM_COLORS[piece_team]
+
+func set_piece_type(_piece_type: PieceType):
+	piece_type = _piece_type
+	sprite.region_rect = Rect2(PieceEnum.PieceAtlas[piece_type], 0, PIECE_SIZE, PIECE_SIZE)
 
 func set_piece_position(hex: Vector2i):
 	global_position = tile_map.map_to_local(hex) + DROP_OFFSET
@@ -44,23 +49,28 @@ func set_piece_position(hex: Vector2i):
 func _on_area_2d_input_event(_viewport, event: InputEvent, _shape_idx):
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
 		if event.is_pressed():
-			dragging = true
-			z_index = 1
-			move_locations.append(location)
-			get_piece_move_options()
-			SignalBus.highlightTiles.emit(move_locations)
+			if Globals.turn == piece_team:
+				dragging = true
+				z_index = 1
+				move_locations.append(location)
+				get_piece_move_options()
+				SignalBus.highlightTiles.emit(move_locations)
 		elif event.is_released():
-			dragging = false
-			z_index = 0
-			var new_pos: Vector2i = tile_map.local_to_map(get_global_mouse_position() - DROP_OFFSET)
-			if move_locations.has(new_pos):
-				if location != new_pos:
-					SignalBus.move_piece.emit(HexFunctions.oddq_to_axial(location), HexFunctions.oddq_to_axial(new_pos), piece_team)
-				set_piece_position(tile_map.local_to_map(get_global_mouse_position() - DROP_OFFSET))
-			else:
-				set_piece_position(location)
-			move_locations.clear()
-			SignalBus.clearHighlights.emit()
+			if Globals.turn == piece_team:
+				dragging = false
+				z_index = 0
+				var new_pos: Vector2i = tile_map.local_to_map(get_global_mouse_position() - DROP_OFFSET)
+				if move_locations.has(new_pos):
+					if location != new_pos:
+						SignalBus.move_piece.emit(HexFunctions.oddq_to_axial(location), HexFunctions.oddq_to_axial(new_pos), piece_team)
+						Globals.turn = PieceEnum.other_team(piece_team)
+						if piece_type == PieceType.PAWN:
+							pawn_upgrade_check(new_pos)
+					set_piece_position(tile_map.local_to_map(get_global_mouse_position() - DROP_OFFSET))
+				else:
+					set_piece_position(location)
+				move_locations.clear()
+				SignalBus.clearHighlights.emit()
 
 const LONGEST_ROOK_MOVE: int = 10
 const LONGEST_BISHOP_MOVE: int = 5
@@ -117,6 +127,11 @@ func pawn_side_captures(hex: Vector2i):
 	hex.y -= 1
 	if Globals.locations[PieceEnum.other_team(piece_team)].has(hex):
 		move_locations.append(HexFunctions.axial_to_oddq(hex))
+
+# oddq
+func pawn_upgrade_check(hex: Vector2i):
+	if Globals.pawn_upgrades[piece_team].has(HexFunctions.oddq_to_axial(hex)):
+		set_piece_type(PieceType.QUEEN)
 
 # axial
 func get_rook_moves(hex: Vector2i, longest_move: int):
