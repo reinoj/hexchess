@@ -19,7 +19,7 @@ var piece_team: PieceTeam
 # oddq
 var move_locations: Array[Vector2i]
 
-@onready var game_node: Node2D = $"../../Node"
+@onready var game_node: Node2D = $"../"
 @onready var sprite: Sprite2D = $"Sprite2D"
 @onready var tile_map: TileMapLayer = $"../Board"
 @onready var DROP_OFFSET = tile_map.transform.get_origin()

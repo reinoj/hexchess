@@ -1,6 +1,11 @@
 extends Node2D
 
 var piece_scene: PackedScene = preload("res://piece.tscn")
+@onready var ui: Control = $"UI"
+@onready var p1_forfeit_button: Button = $"UI/P1ForfeitButton"
+@onready var p2_forfeit_button: Button = $"UI/P2ForfeitButton"
+@onready var win_screen: Control = $"UI/WinScreen"
+@onready var label: Label = $"UI/WinScreen/VBox/Label"
 
 const PieceType = PieceEnum.PieceType
 const PieceTeam = PieceEnum.PieceTeam
@@ -8,6 +13,9 @@ const PieceTeam = PieceEnum.PieceTeam
 func _ready():
 	load_pieces()
 	SignalBus.connect("move_piece", _move_piece)
+	SignalBus.connect("new_game", _new_game)
+	p1_forfeit_button.pressed.connect(self.forfeit_button)
+	p2_forfeit_button.pressed.connect(self.forfeit_button)
 
 func load_pieces():
 	# formation based on Glinski
@@ -72,6 +80,7 @@ func load_pieces():
 func spawn_piece(hex: Vector2i, piece_type: PieceType, piece_team: PieceTeam):
 	var piece: Node2D = piece_scene.instantiate()
 	add_child(piece)
+	piece.add_to_group("pieces")
 	piece.set_piece_position(HexFunctions.axial_to_oddq(hex))
 	piece.initialize_piece(piece_type, piece_team)
 	match piece_team:
@@ -100,7 +109,22 @@ func capture_piece(hex: Vector2i, piece_team: PieceTeam):
 				Globals.locations[piece_team].erase(hex)
 				break
 
-# TODO
-# add buttons to game screen for each side to forfeit
-# add popup after one team wins, "___" Wins! and new game button
-# add boolean game state variable to globals so that pieces can't be moved after game is done
+func forfeit_button():
+	get_tree().paused = true
+	win_screen.visible = true
+	p1_forfeit_button.set_disabled(true)
+	p2_forfeit_button.set_disabled(true)
+	match Globals.turn:
+		PieceTeam.BLACK:
+			label.text = "Player 1 Wins"
+		PieceTeam.WHITE:
+			label.text = "Player 2 Wins"
+
+func _new_game():
+	get_tree().paused = false
+	for piece in get_tree().get_nodes_in_group("pieces"):
+		piece.queue_free()
+	load_pieces()
+	win_screen.visible = false
+	p1_forfeit_button.set_disabled(false)
+	p2_forfeit_button.set_disabled(false)

@@ -1,0 +1,48 @@
+[gd_scene load_steps=2 format=3 uid="uid://bhwh74pvgjwgu"]
+
+[ext_resource type="PackedScene" uid="uid://cnh07p7u3b5kp" path="res://win_screen.tscn" id="1_q2kp2"]
+
+[node name="UI" type="Control"]
+process_mode = 3
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="P1ForfeitButton" type="Button" parent="."]
+layout_mode = 0
+offset_left = 864.0
+offset_top = 1196.0
+offset_right = 1120.0
+offset_bottom = 1260.0
+theme_override_font_sizes/font_size = 32
+text = "Player 1 Forfeit"
+
+[node name="P2ForfeitButton" type="Button" parent="."]
+layout_mode = 0
+offset_left = 32.0
+offset_top = 28.0
+offset_right = 288.0
+offset_bottom = 92.0
+theme_override_font_sizes/font_size = 32
+text = "Player 2 Forfeit"
+
+[node name="BackroundRect" type="ColorRect" parent="."]
+z_index = -1
+layout_mode = 0
+offset_right = 1152.0
+offset_bottom = 1288.0
+mouse_filter = 2
+color = Color(0.501961, 0.501961, 0.501961, 1)
+
+[node name="WinScreen" parent="." instance=ExtResource("1_q2kp2")]
+visible = false
+z_index = 3
+custom_minimum_size = Vector2(480, 260)
+layout_mode = 0
+offset_left = 336.0
+offset_top = 514.0
+offset_right = 816.0
+offset_bottom = 774.0

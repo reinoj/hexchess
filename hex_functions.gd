@@ -1,6 +1,6 @@
 extends Node
 
-@onready var tile_map: TileMapLayer = $"../Node/Board"
+@onready var tile_map: TileMapLayer = $"../Game/Board"
 
 func axial_to_oddq(hex: Vector2i) -> Vector2i:
 	@warning_ignore("integer_division")

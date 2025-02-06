@@ -26,3 +26,7 @@ HexFunctions="*res://hex_functions.gd"
 
 window/size/viewport_height=1288
 window/stretch/mode="canvas_items"
+
+[global_group]
+
+pieces=""

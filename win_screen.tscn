@@ -1,0 +1,35 @@
+[gd_scene load_steps=2 format=3 uid="uid://cnh07p7u3b5kp"]
+
+[ext_resource type="Script" path="res://new_game_button.gd" id="1_l4ogb"]
+
+[node name="WinScreen" type="ColorRect"]
+z_index = 1
+offset_right = 480.0
+offset_bottom = 259.0
+color = Color(0.223103, 0.223103, 0.223103, 1)
+
+[node name="VBox" type="VBoxContainer" parent="."]
+z_index = 2
+layout_mode = 0
+offset_left = 32.0
+offset_top = 32.0
+offset_right = 448.0
+offset_bottom = 227.0
+theme_override_constants/separation = 32
+alignment = 1
+
+[node name="Label" type="Label" parent="VBox"]
+z_index = 2
+layout_mode = 2
+size_flags_horizontal = 0
+theme_override_font_sizes/font_size = 64
+text = "Player X Wins"
+
+[node name="Button" type="Button" parent="VBox"]
+z_index = 2
+layout_mode = 2
+theme_override_font_sizes/font_size = 48
+text = "New Game"
+script = ExtResource("1_l4ogb")
+
+[connection signal="pressed" from="VBox/Button" to="VBox/Button" method="_on_pressed"]
