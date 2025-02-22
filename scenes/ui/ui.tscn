@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://bhwh74pvgjwgu"]
 
-[ext_resource type="PackedScene" uid="uid://cnh07p7u3b5kp" path="res://win_screen.tscn" id="1_q2kp2"]
+[ext_resource type="PackedScene" uid="uid://cnh07p7u3b5kp" path="res://scenes/ui/win_screen.tscn" id="1_q2kp2"]
 
 [node name="UI" type="Control"]
 process_mode = 3
@@ -30,6 +30,7 @@ theme_override_font_sizes/font_size = 32
 text = "Player 2 Forfeit"
 
 [node name="BackroundRect" type="ColorRect" parent="."]
+visible = false
 z_index = -1
 layout_mode = 0
 offset_right = 1152.0

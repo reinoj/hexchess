@@ -1,7 +1,7 @@
 [gd_scene load_steps=4 format=3 uid="uid://b2wh6h4bjvgbo"]
 
-[ext_resource type="Texture2D" uid="uid://cuftk17xtt3jp" path="res://chess_pieces.png" id="1_s4dog"]
-[ext_resource type="Script" path="res://piece.gd" id="2_ns8mu"]
+[ext_resource type="Texture2D" uid="uid://cuftk17xtt3jp" path="res://assets/chess_pieces.png" id="1_s4dog"]
+[ext_resource type="Script" path="res://scenes/piece/piece.gd" id="2_ns8mu"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_dmafj"]
 radius = 41.0

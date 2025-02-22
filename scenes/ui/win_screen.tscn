@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://cnh07p7u3b5kp"]
 
-[ext_resource type="Script" path="res://new_game_button.gd" id="1_l4ogb"]
+[ext_resource type="Script" path="res://scenes/ui/new_game_button.gd" id="1_l4ogb"]
 
 [node name="WinScreen" type="ColorRect"]
 z_index = 1

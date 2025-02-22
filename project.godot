@@ -11,16 +11,15 @@ config_version=5
 [application]
 
 config/name="HexChess"
-run/main_scene="res://game.tscn"
+run/main_scene="res://scenes/game/game.tscn"
 config/features=PackedStringArray("4.3", "Forward Plus")
-config/icon="res://icon.svg"
 
 [autoload]
 
-PieceEnum="*res://piece_enum.gd"
-SignalBus="*res://signal_bus.gd"
-Globals="*res://globals.gd"
-HexFunctions="*res://hex_functions.gd"
+PieceEnum="*res://globals/piece_enum.gd"
+SignalBus="*res://globals/signal_bus.gd"
+Globals="*res://globals/globals.gd"
+HexFunctions="*res://globals/hex_functions.gd"
 
 [display]
 

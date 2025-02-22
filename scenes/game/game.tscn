@@ -1,11 +1,11 @@
 [gd_scene load_steps=10 format=3 uid="uid://cu8gwexv5yx5b"]
 
-[ext_resource type="Script" path="res://game.gd" id="1_f4eft"]
-[ext_resource type="PackedScene" uid="uid://d4em6fsajote5" path="res://board.tscn" id="2_134l0"]
+[ext_resource type="Script" path="res://scenes/game/game.gd" id="1_f4eft"]
+[ext_resource type="PackedScene" uid="uid://d4em6fsajote5" path="res://scenes/board/board.tscn" id="2_134l0"]
 [ext_resource type="Texture2D" uid="uid://dwpd1pvu2p01x" path="res://assets/Highlight.png" id="3_jelw5"]
 [ext_resource type="Texture2D" uid="uid://dk6xjtfkate16" path="res://assets/Highlight_Dot.png" id="4_0tn5r"]
-[ext_resource type="Script" path="res://highlights.gd" id="4_vksjv"]
-[ext_resource type="PackedScene" uid="uid://bhwh74pvgjwgu" path="res://ui.tscn" id="6_iktuw"]
+[ext_resource type="Script" path="res://scenes/piece/highlights.gd" id="4_vksjv"]
+[ext_resource type="PackedScene" uid="uid://bhwh74pvgjwgu" path="res://scenes/ui/ui.tscn" id="6_iktuw"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_d388e"]
 texture = ExtResource("3_jelw5")
@@ -39,4 +39,17 @@ script = ExtResource("4_vksjv")
 [node name="Camera2D" type="Camera2D" parent="."]
 position = Vector2(576, 644)
 
-[node name="UI" parent="." instance=ExtResource("6_iktuw")]
+[node name="UICanvas" type="CanvasLayer" parent="."]
+
+[node name="UI" parent="UICanvas" instance=ExtResource("6_iktuw")]
+mouse_filter = 2
+
+[node name="BackgroundCanvas" type="CanvasLayer" parent="."]
+layer = -1
+
+[node name="BackroundRect" type="ColorRect" parent="BackgroundCanvas"]
+z_index = -1
+offset_right = 1152.0
+offset_bottom = 1288.0
+mouse_filter = 2
+color = Color(0.501961, 0.501961, 0.501961, 1)

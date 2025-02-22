@@ -1,11 +1,11 @@
 extends Node2D
 
-var piece_scene: PackedScene = preload("res://piece.tscn")
-@onready var ui: Control = $"UI"
-@onready var p1_forfeit_button: Button = $"UI/P1ForfeitButton"
-@onready var p2_forfeit_button: Button = $"UI/P2ForfeitButton"
-@onready var win_screen: Control = $"UI/WinScreen"
-@onready var label: Label = $"UI/WinScreen/VBox/Label"
+var piece_scene: PackedScene = preload("res://scenes/piece/piece.tscn")
+@onready var ui: Control = $"UICanvas/UI"
+@onready var p1_forfeit_button: Button = $"UICanvas/UI/P1ForfeitButton"
+@onready var p2_forfeit_button: Button = $"UICanvas/UI/P2ForfeitButton"
+@onready var win_screen: Control = $"UICanvas/UI/WinScreen"
+@onready var label: Label = $"UICanvas/UI/WinScreen/VBox/Label"
 
 const PieceType = PieceEnum.PieceType
 const PieceTeam = PieceEnum.PieceTeam
