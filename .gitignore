@@ -6,3 +6,5 @@
 *.svg
 *.import
 *.tmp
+
+!QueenMovementExample_small.png
